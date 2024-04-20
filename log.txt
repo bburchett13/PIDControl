@@ -1,0 +1,12 @@
+April 19 5:00 pm
+The goal for today was to start the project. I built the github repository, threw in an HTML header, and started on learning plotly. 
+I will be using plotly to make my plots for this project. This is primarily because the documentation seems approachable and I feel 
+that I can learn it with relative ease. I learned enough to make a step plot and put it in the body of the HTML which is a start. 
+This means that I can start on the controller. Next time I log in, that is what I will be playing with. 
+
+April 19 11:42 pm
+I implemented a bang bang controller successfully and started on PID. It's been a long time since I've looked at PID control and the
+last time I did so, I used MATLAB. Because I'm in Javascript, I'm attempting to discretize the PID controller, which has given me
+some trouble. I have a 2 different versions in the code currently. Both seem to work slightly differently, and neither performs how
+I expect. I'll need to do some more research on this. Once I get the controller working, I'm planning to edit the HTML to add in
+buttons that allow me to do everything from the webpage. One step at a time though...
