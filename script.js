@@ -1,52 +1,55 @@
 stepPlot = document.getElementById('stepPlot');
+
+//Variables relating to time and number of discrete time points
 let steps = 100000
-let stepSize = 1;
 let timeStepSize = 10/steps;
 let currentTime = 0;
 let time = new Array(steps);
 
+//setting up arrays
 let setpoint = new Array(steps);
 let controllerOutput = new Array(steps-1);
 controllerOutput[0] = 0;
 controllerOutput[1] = 0;
-let velocity = 0;
-let bangBangcontrollerSize = 1;
-let acceleration = 0;
-let newControllerOutput;
-// let Kp = .8;
-// let Ki = 200;
-// let Kd = .00005;
-let Kp = 1;
-let Ki = 1;
-let Kd = 0;
 let error = new Array(steps);
 error[0] = 0;
 error[1] = 0;
+
+//Variables relating to controller/setpoint size
+let bangBangcontrollerSize = 100;
+let setpointForce;
+let stepSize = 1;
+
+//PID Variables
 let cumulativeError = 0;
 let dedt = 0;
 let integralWindup = steps;
+let Kp = 30;
+let Ki = 3;
+let Kd = 0.03;
 
+//Control Loop
 for (let i = 0; i < steps; i++) {
 
     time[i] = currentTime;
     // The commented out code is for a step input. This will later be made an available option when multiple setpoint options are made available
     if (i >= 1/timeStepSize) {
 
-        setpoint[i] = stepSize;
+        setpointForce = stepSize;
 
     }
     else {
 
-        setpoint[i] = 0;
+        setpointForce = 0;
 
     }
-    // setpoint[i] = stepSize;
+    setpoint[i] = setpointForce;
     //the code below this computes a sin wave setpoint. 
-    // setpoint[i] = 3+Math.sin(time[i]);
+    // setpoint[i] = setpointForce+Math.sin(time[i]);
 
     //ramp function
     // setpoint[i] = time[i];
-
+    
 
     currentTime += timeStepSize;
 
@@ -59,7 +62,8 @@ for (let i = 0; i < steps; i++) {
 
 };
 
-
+//Plotting
+//#region
 let stepFunction = {
 
     x: time,
@@ -86,6 +90,7 @@ let layout = {
     xaxis: {range: [0, 4]}
 
 };
+//#endregion
 
 //mode: markers will give disconnected points, which might look good for the controller
 
@@ -98,17 +103,20 @@ function bangBang(index, previousControllerOutput, timeStep, currentFunctionOutp
 
         if (previousControllerOutput < currentFunctionOutput) {
 
-            acceleration = controllerStrength;
+            calculatedControllerOutput = controllerStrength;
+    
+        }
+        else if (index > currentFunctionOutput) {
+            
+            calculatedControllerOutput = -controllerStrength
     
         }
         else {
-            
-            acceleration = -controllerStrength
-    
+
+            acceleration = 0;
         }
 
-        velocity = velocity + acceleration * timeStepSize;
-        newControllerOutput = previousControllerOutput + velocity * timeStep;
+        newControllerOutput = system(previousControllerOutput,timeStep, calculatedControllerOutput);
 
     }
 
@@ -116,9 +124,10 @@ function bangBang(index, previousControllerOutput, timeStep, currentFunctionOutp
 
 };
 
-function PID(index, previousControllerOutput, timeStep, previousFunctionOutput){
+//PID function
+function PID(index, previousSystemOutput, timeStep, previousFunctionOutput){
 
-    error[index] = previousFunctionOutput - previousControllerOutput;
+    error[index] = previousFunctionOutput - previousSystemOutput;
 
     if (index < integralWindup){
 
@@ -132,13 +141,22 @@ function PID(index, previousControllerOutput, timeStep, previousFunctionOutput){
  
     dedt = (error[index] - error[index-1])/timeStep;
 
-    // acceleration = (Kp * error[index]) + (Ki * (cumulativeError)) + (Kd * dedt);
+    calculatedControllerOutput = (Kp * error[index]) + (Ki * (cumulativeError)) + (Kd * dedt);
 
-    // velocity = velocity + (acceleration * timeStep);
+    newControllerOutput = system(previousSystemOutput, timeStep, calculatedControllerOutput);
 
-    velocity = (Kp * error[index]) + (Ki * (cumulativeError)) + (Kd * dedt);
+    return newControllerOutput;
 
-    return  (previousControllerOutput + (velocity*timeStep));
-    // return previousControllerOutput + (Kp + (Ki * timeStep / 2) + (Kd/timeStep)) * error[index] + (-Kp + (Ki * timeStep/2 - (2 * Kd / timeStep))) * previousError + (Kd / timeStep) * error[index - 2];
+};
+
+
+// defining a water boiler/chiller system for testing
+function system(previousSystemOutput,timeStep, calculatedControllerOutput) {
+
+    nextSystemOutput = previousSystemOutput + (1 * calculatedControllerOutput*timeStep);
+
+    nextSystemOutput -= 0.02 * timeStep;
+
+    return nextSystemOutput;
 
 };

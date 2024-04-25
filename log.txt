@@ -17,3 +17,10 @@ within a system. Whoops. I guess the rust is showing with my controls knowledge.
 the velocity, I get a much more logical response. I still have things to fix with both the P control (I have no steady 
 state error), and the D control (it provides an instant response and then no added effect, or it makes the system unstable), but 
 we're much closer. This is a good stopping point for now. 
+
+April 24 11:25 pm
+So I figured it out. I have a working system with working PID control. I can do a step input, a ramp input, a sine wave, and all
+reference functions work properly. The issue was all in how I defined my system, not in how I implemented PID. Turns out,
+if your system isn't defined properly, it doesn't matter how well your controller works. I've pivoted to a boiler/chiller system,
+which seems to work pretty well. I also cleaned up the code and added comments to improve the readability of my code. Now I'm 
+ready to start adding buttons to the webpage and making it look nice and pretty. 
