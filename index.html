@@ -14,7 +14,61 @@
 
     </head>
     <body>
+        <header>PID Control</header>
+        <div class="root">
+            <div class="inputs">
+                <p style="width: 9rem">Controller Type: </p>
+                <select id='controllerType' onChange="setControllerType(this)" value="0"> 
+                    <option value="" selected disabled hidden>Choose here</option>
+                    <option value="0">PID</option> 
+                    <option value="1">Bang-Bang</option>
+                </select> 
+                <p style="width: 9rem">Input Type: </p>
+                <select id='systemInput'> 
+                    <option value="0">Step</option> 
+                    <option value="1">Impulse</option>
+                    <option value="2">Ramp</option> 
+                    <option value="3">Sine Wave</option>
+                </select> 
 
-        <div id="stepPlot"></div>
+                <div class="inputItem PID"> 
+                    <p style="width: 9rem">KP:</p> 
+                    <input id="Kp" 
+                        type="number"
+                        value="0" 
+                        placeholder="0" /> 
+                </div> 
+
+                <div class="inputItem PID"> 
+                    <p style="width: 9rem">KI:</p> 
+                    <input id="Ki" 
+                        type="number"
+                        value="0" 
+                        placeholder="0" /> 
+                </div> 
+
+                <div class="inputItem PID"> 
+                    <p style="width: 9rem">KD:</p> 
+                    <input id="Kd" 
+                        type="number"
+                        value="0" 
+                        placeholder="0" /> 
+                <div class="inputItem BangBang">
+                    <p style="width:9rem">Bang-Bang Controller Size</p>
+                    <input id="BBControllerSize"
+                        type="number"
+                        value="1"
+                        placeholder="1" />
+                </div>
+                </div> 
+
+                <button class="inputItem" onclick="runSim()">Run Sim</button>
+            </div>
+            <div id="stepPlot"></div>
+        </div>
+        
+            
+
+        
 
     </body>

@@ -24,3 +24,11 @@ reference functions work properly. The issue was all in how I defined my system,
 if your system isn't defined properly, it doesn't matter how well your controller works. I've pivoted to a boiler/chiller system,
 which seems to work pretty well. I also cleaned up the code and added comments to improve the readability of my code. Now I'm 
 ready to start adding buttons to the webpage and making it look nice and pretty. 
+
+May 2 10:22 pm
+I added in the buttons on the webpage so the whole thing can be run from there. No more changing hardcoded variable values! This 
+also makes it easier to switch input types. I could add colors and such, but I'm happy with this as is. You can also turn off PID
+completely and experiment with a bang-bang controller. I made it so that the bang bang controller can only change directions every
+.05 seconds, so it can't react instantly. This helps to better show the oscillations that are caused by bang bang controllers. 
+There are still things that I could add to this project, but I am happy with it where it is now. I am going to move on to my next
+project for now, but may revisit later. 

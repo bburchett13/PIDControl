@@ -16,106 +16,193 @@ error[0] = 0;
 error[1] = 0;
 
 //Variables relating to controller/setpoint size
-let bangBangcontrollerSize = 100;
+// let bangBangcontrollerSize = 100;
 let setpointForce;
 let stepSize = 1;
+let calculatedControllerOutput;
 
 //PID Variables
 let cumulativeError = 0;
 let dedt = 0;
 let integralWindup = steps;
-let Kp = 30;
-let Ki = 3;
-let Kd = 0.03;
 
-//Control Loop
-for (let i = 0; i < steps; i++) {
+//Variable for Controller Type
+let controllerType = 0;
 
-    time[i] = currentTime;
-    // The commented out code is for a step input. This will later be made an available option when multiple setpoint options are made available
-    if (i >= 1/timeStepSize) {
+let Kp = document.getElementById("Kp");
+let Ki = document.getElementById("Ki");
+let Kd = document.getElementById("Kd");
+let bangBangControllerSize = document.getElementById("BBControllerSize");
+bangBangControllerSize.disabled = true;
 
-        setpointForce = stepSize;
+makePlots(time,setpoint,controllerOutput);
+
+
+function setControllerType(obj) {
+    // let PIDInputs = document.getElementsByClassName("PID");
+
+    // let bangBangInputs = document.getElementsByClassName("BangBang")
+
+    if (obj.value === '0'){
+        
+        Kp.disabled = false;
+        Ki.disabled = false;
+        Kd.disabled = false
+
+        bangBangControllerSize.disabled = true;
+
+        controllerType = 0;
 
     }
-    else {
+    else if (obj.value === '1') {
 
-        setpointForce = 0;
+        Kp.disabled = true;
+        Ki.disabled = true;
+        Kd.disabled = true;
 
-    }
-    setpoint[i] = setpointForce;
-    //the code below this computes a sin wave setpoint. 
-    // setpoint[i] = setpointForce+Math.sin(time[i]);
+        bangBangControllerSize.disabled = false;
+        controllerType = 1;
+    };
 
-    //ramp function
-    // setpoint[i] = time[i];
+
+
+}
+
+//Function for control
+function runSim(){
+    calculatedControllerOutput = 0;
+    let systemInput = document.getElementById("systemInput");
+    currentTime = 0;
+
+    //Control Loop
+    for (let i = 0; i < steps; i++) {
+
+        time[i] = currentTime;
+        //Step Input
+        if (systemInput.value === '0'){
+
+            if (i >= 1/timeStepSize) {
     
+                setpointForce = stepSize;
+        
+            }
+            else {
+        
+                setpointForce = 0;
+        
+            }
+            setpoint[i] = setpointForce;
 
-    currentTime += timeStepSize;
+        }
+        else if (systemInput.value === '1'){
+            setpoint[i] = 0;
+
+            if (i > 10000 && i < 11000){
+                setpoint[i] = 1
+
+            }
+
+
+        }
+        //ramp function
+        else if (systemInput.value === '2') {
+
+            setpoint[i] = time[i];
+
+        }
+        //Sine Wave
+        else if (systemInput.value === '3') {
+            setpointForce = 1;
+            setpoint[i] = setpointForce+Math.sin(time[i]);
+
+        }
+         
+    
+        currentTime += timeStepSize;
+    
+        
+        if (i > 1){
+            if (controllerType === 0) {
+
+                controllerOutput[i] = PID(i, controllerOutput[i-1], timeStepSize, setpoint[i-1], Kp.value, Ki.value, Kd.value);
+
+
+            }
+            else if (controllerType === 1) {
+
+                controllerOutput[i] = bangBang(i, controllerOutput[i-1],timeStepSize,setpoint[i],bangBangControllerSize.value);
+
+            };
+        };   
+    };
+
+    makePlots(time, setpoint, controllerOutput);
 
     
-    if (i > 1){
-        controllerOutput[i] = PID(i, controllerOutput[i-1], timeStepSize, setpoint[i-1]);
-        // controllerOutput[i] = bangBang(i, controllerOutput[i-1],timeStepSize,setpoint[i],bangBangcontrollerSize);
-
-    }   
-
 };
 
 //Plotting
-//#region
-let stepFunction = {
+function makePlots(time, setpoint, controllerOutput) {
 
-    x: time,
+    //#region
+    let stepFunction = {
 
-	y: setpoint,
+        x: time,
 
-    mode: 'scatter'
+        y: setpoint,
 
-};
+        mode: 'scatter',
 
-let controllerPlot = {
+        name:"Signal"
 
-    x: time,
-    y: controllerOutput,
-    mode: 'scatter',
-    line: {shape: 'spline', smoothing: 1.3}
-};
+    };
 
-let data = [stepFunction, controllerPlot];
+    let controllerPlot = {
 
-let layout = {
+        x: time,
+        y: controllerOutput,
+        mode: 'scatter',
+        line: {shape: 'spline', smoothing: 1.3},
+        name: "Controller"
+    };
 
-    yaxis: {range: [0, 1.5]},
-    xaxis: {range: [0, 4]}
+    let data = [stepFunction, controllerPlot];
 
-};
-//#endregion
+    let layout = {
 
-//mode: markers will give disconnected points, which might look good for the controller
+        yaxis: {range: [0, 1.5]},
+        xaxis: {range: [0, 4]}
 
-	Plotly.newPlot( stepPlot, data);
+    };
+    //#endregion
+
+    //mode: markers will give disconnected points, which might look good for the controller
+
+    Plotly.newPlot( stepPlot, data);
+
+
+}
+
 
 // Function for Bang Bang control
 function bangBang(index, previousControllerOutput, timeStep, currentFunctionOutput, controllerStrength) {
 
     if (index > 0) {
+        if (index % 500 === 0) {
 
-        if (previousControllerOutput < currentFunctionOutput) {
+            if (previousControllerOutput <= currentFunctionOutput) {
 
-            calculatedControllerOutput = controllerStrength;
-    
+                calculatedControllerOutput = controllerStrength;
+        
+            }
+            else if (index > currentFunctionOutput) {
+                
+                calculatedControllerOutput = -controllerStrength
+        
+            }
+
         }
-        else if (index > currentFunctionOutput) {
             
-            calculatedControllerOutput = -controllerStrength
-    
-        }
-        else {
-
-            acceleration = 0;
-        }
-
         newControllerOutput = system(previousControllerOutput,timeStep, calculatedControllerOutput);
 
     }
@@ -125,7 +212,7 @@ function bangBang(index, previousControllerOutput, timeStep, currentFunctionOutp
 };
 
 //PID function
-function PID(index, previousSystemOutput, timeStep, previousFunctionOutput){
+function PID(index, previousSystemOutput, timeStep, previousFunctionOutput, Kp, Ki, Kd){
 
     error[index] = previousFunctionOutput - previousSystemOutput;
 

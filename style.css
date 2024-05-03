@@ -1,0 +1,45 @@
+header {
+    display: flex;
+    font-size: 8em;
+    justify-content: center;
+    align-items: center;
+    /* color: #9AC8CD; */
+
+}
+
+/* body {
+
+    /* background-color: #1E0342;
+
+} */
+
+.root {
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    /* text-align: center; */
+    padding:1em;
+    /* background-color: #0E46A3; */
+    /* color: #9AC8CD; */
+    width: fit-content;
+    margin:auto;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2); 
+
+}
+
+button {
+
+    margin-top:1em;
+    align-items: center;
+    
+}
+
+p {
+
+    margin-bottom: 0;
+
+}
+
+
