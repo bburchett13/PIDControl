@@ -2,5 +2,14 @@
 This project is to make a PID control simulation
 
 
-Users will be able to choose P, I, and D gains for a step input
-The project will work with D3.js to plot the data for a specified amount of time
+Users can select controller type (bang-bang or PID), input type (step, impulse, ramp, sine), and gains
+Outputs of the system and controller are calculated for 10 seconds with a resolution of 0.0001 seconds
+The system that is controlled is a simple boiler/chiller system. The system is shown below: 
+
+    nextSystemOutput = previousSystemOutput + (1 * calculatedControllerOutput*timeStep);
+
+    nextSystemOutput -= 0.02 * timeStep;
+
+The controller applies some change to the system, and the temperature is lowered by a small value at every time step. 
+
+The project uses plotly to create a plot of the data
